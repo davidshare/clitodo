@@ -1,7 +1,7 @@
 import sqlite3
 
 
-class Database:
+class SQLiteDatabase:
     """Class to connect to sqlite database"""
 
     def __init__(self, db_name: str):
@@ -9,8 +9,12 @@ class Database:
         self.connection = None
         self.cursor = None
 
-    def connect(self):
-        """Connect to sqlite database" """
+    def connect(self) -> None:
+        """
+        Connect to the SQLite database.
+            Returns:
+                None: True if the connection was successful, False otherwise.
+        """
         try:
             self.connection = sqlite3.connect(self.db_name)
             self.cursor = self.connection.cursor()
@@ -19,8 +23,15 @@ class Database:
             print(f"Error connecting to database {e}")
             raise e
 
-    def execute_query(self, query, params=None):
-        """Execute SQL Queries"""
+    def execute_query(self, query, params=None) -> None:
+        """
+        Execute an SQL query.
+        Args:
+            query (str): The SQL query to execute.
+            params (tuple, optional): Parameters for the query. Defaults to None.
+        Returns:
+            None: True if the query was executed successfully, False otherwise.
+        """
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -31,8 +42,15 @@ class Database:
         except sqlite3.Error as e:
             print(f"Error executing query {e}")
 
-    def fetch_all(self, query, params=None):
-        """get all items"""
+    def fetch_all(self, query: str, params=None) -> list:
+        """
+        Fetch all rows from a query.
+        Args:
+            query (str): The SQL query to execute.
+            params (tuple, optional): Parameters for the query. Defaults to None.
+        Returns:
+            list: A list of rows fetched from the database, or an empty list if an error occurred.
+        """
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -41,10 +59,17 @@ class Database:
             return self.cursor.fetchall()
         except sqlite3.Error as e:
             print(f"Error fetching data: {e}")
-            return None
+            return []
 
-    def fetch_one(self, query, params=None):
-        """get single item"""
+    def fetch_one(self, query: str, params=None) -> tuple:
+        """
+        Fetch a single row from a query.
+        Args:
+            query (str): The SQL query to execute.
+            params (tuple, optional): Parameters for the query. Defaults to None.
+        Returns:
+            tuple: A single row fetched from the database, or None if an error occurred.
+        """
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -55,8 +80,12 @@ class Database:
             print(f"Error fetching data: {e}")
             return None
 
-    def close(self):
-        """Close the database connection"""
+    def close(self) -> None:
+        """
+        Close the database connection.
+        Returns:
+            None: True if the connection was closed successfully, False otherwise.
+        """
         if self.connection:
             self.connection.close()
             print("Database connection closed.")
