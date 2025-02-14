@@ -5,20 +5,57 @@ from .database import SQLiteDatabase
 class Todo:
     """Class to manage todos"""
 
-    def __init__(self, title, description, due_date, status=0, priority=0, parent=None):
+    def __init__(
+        self,
+        db: SQLiteDatabase,
+        title: str,
+        description: str,
+        due_date: int,
+        status: int = 0,
+        priority: int = 0,
+        parent: int = None,
+    ):
         self.title = title
         self.description = description
         self.status = status
         self.priority = priority
         self.due_date = due_date
         self.parent = parent
+        self.db = db
 
-    def create_table(self, db: SQLiteDatabase):
+        self.create_table(self.db)
+
+    @classmethod
+    def check_table_exists(cls, db: SQLiteDatabase):
+        """
+        Check if the todos table exists in the database
+        Args:
+        Returns:
+            bool: True if table exists, False otherwise
+        """
+        query = """
+        SELECT name from sqlite_master
+        WHERE type='table'AND name='todos' 
+        """
+        try:
+            result = db.fetch_one(query)
+            return result is not None
+        except sqlite3.Error as e:
+            print(f"Error checking if table exists: {e}")
+            return False
+
+    @classmethod
+    def create_table(cls, db: SQLiteDatabase):
         """
         Create the todo table.
         Returns:
             bool: True if the table was created successfully, False otherwise.
         """
+        table_exists = cls.check_table_exists(db)
+        if table_exists:
+            print("Todo table already exists")
+            return True
+
         query = """
             CREATE TABLE IF NOT EXISTS todos(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +73,7 @@ class Todo:
         except sqlite3.Error as e:
             print(f"Error creating todos table: {e}")
 
-    def save(self, db: SQLiteDatabase) -> int:
+    def save(self) -> int:
         """
         Save the todo item to the database.
         Returns:
@@ -48,7 +85,7 @@ class Todo:
         """
 
         try:
-            db.execute_query(
+            self.db.execute_query(
                 query,
                 (
                     self.title,
@@ -60,7 +97,7 @@ class Todo:
                 ),
             )
 
-            return db.cursor.lastrowid
+            return self.db.cursor.lastrowid
         except sqlite3.Error as e:
             print(f"Error saving todo: {e}")
             return -1
