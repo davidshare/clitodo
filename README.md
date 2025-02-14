@@ -1,4 +1,9 @@
+# clitodo
+
+A todo app on the cli with python
+
 ## Features
+
 - todo item (title, description, status, priority, due_date)
 - todo tasks (title, description, status, priority, due date, parent)
 - reminder functionality - using alarms
